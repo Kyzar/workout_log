@@ -1,20 +1,15 @@
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, render_template, request
 
 # initialization
 app = Flask(__name__)
-app.config.update(
-  DEBUG = True
-)
+app.debug = True
 
 # controllers
 @app.route("/")
-def index():
-  return "Hello test"
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'), 'ico/favicon.ico')
+@app.route("/<name>")
+def index(name=None):
+  return render_template('index.html', name=name)
 
 # launch
 if __name__ == "__main__":

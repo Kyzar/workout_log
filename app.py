@@ -1,4 +1,5 @@
 import os
+import time
 import sqlite3
 from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
@@ -11,23 +12,25 @@ app.config.from_pyfile('development_config.py')
 
 
 #--------------- controllers ---------------#
-# show all entries
+
+"""Main page: Today's work out log."""
 @app.route('/')
 def index():
-  cur = g.db.execute('select title, text from entries order by id desc')
-  entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-  return render_template('index.html', entries=entries)
+  date = time.strftime('%a %b, %d')
+  curr_time = time.strftime('%I:%M %p')
+  # cur = g.db.execute('select title, text from entries order by id desc')
+  # entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
+  return render_template('index.html',
+                          date=date,
+                          curr_time=curr_time)
 
-# # add new entry to database and redirect to all entries
-# @app.route('/add', methods=['POST'])
-# def add_entry():
-#   if not session.get('logged_in'):
-#     abort(401)
-#   g.db.execute('insert into entries (title, text) values (?, ?)',
-#               [request.form['title'], request.form['text']])
-#   g.db.commit()
-#   flash('New entry was successfully posted')
-#   return redirect(url_for('index'))
+# add new entry to database and redirect to index
+@app.route('/add', methods=['POST'])
+def add_entry():
+  if not session.get('logged_in'):
+    abort(401)
+  flash('Testing')
+  return redirect(url_for('index'))
 
 # if GET -> load login page
 # if POST -> attempt to log user in

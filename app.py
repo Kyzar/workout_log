@@ -5,7 +5,6 @@ from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 from flask.ext.sqlalchemy import SQLAlchemy
-# from models import *
 
 
 #--------------- initialization ---------------#
@@ -13,6 +12,7 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('development_config.py')
 db = SQLAlchemy(app)
+from models import *
 
 #--------------- controllers ---------------#
 @app.route('/')

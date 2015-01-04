@@ -15,5 +15,3 @@ class Exercise(db.Model):
   def __repr__(self):
     string_of_type = 'Strength' if self.exercise_type else 'Cardio'
     return "%s, %s" %(self.name, string_of_type)
-
-db.create_all()

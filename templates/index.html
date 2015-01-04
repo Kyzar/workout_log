@@ -3,14 +3,11 @@
   {{ super() }}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.min.js" defer></script>
-  <script src="{{ url_for('static', filename='js/exercises.js') }}">
+  <script src="{{ url_for('static', filename='js/exercises.js') }}" defer></script>
 {% endblock %}
+
 {% block body %}
-<div ng-app>
-  {% raw %}
-    <input type="text" ng-model="yourName" placeholder="Enter a name here">
-    <h1>Hello {{yourName}}!</h1>
-  {% endraw %}
+<div ng-controller='WorkoutLogController'>
   <!-- date time for today -->
   <article class='datetime_today row'>
     <div class='date_today col-xs-12'>{{ date }}</div>
@@ -19,22 +16,19 @@
 
   <!-- entry for today -->
   <article class='entry_container'>
-    <form action="{{ url_for('add_entry') }}" method='post' class='add_entry'>
+    <div>You have done {[ totalExercises ]} exercises today.</div>
 
+    <form action="{{ url_for('add_entry') }}" method='post' class='add_entry'>
       <!-- strength exercises -->
       <ul class='str_exercises'>
-<!--         <li class='str_exercise'>
-          Sets<input type='number' name='sets' min='0'>
-          Reps<input type='number' name='reps' min='0'>
-          Weight<input type='number' name='weight' min='0'>
-          Exercise<input type='text' name='exercise'>
-        </li> -->
+        <li ng-repeat='ex in strExercises'>
+          Sets<input type='number' name='sets' min='0' ng-model='ex.sets'>
+          Reps<input type='number' name='reps' min='0' ng-model='ex.reps'>
+          Weight<input type='number' name='weight' min='0' ng-model='ex.weight'>
+          Exercise<input type='text' name='exercise' ng-model='ex.name'>
+        </li>
       </ul>
-
-      <!-- cardio exercises -->
-      <ul class='cardio_exercises'>
-        <li class='exercise'>
-      </ul>
+      <input type='button' ng-click='addExercise()'>
 
       <!-- saving entry -->
       {% if session.logged_in %}

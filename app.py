@@ -61,36 +61,7 @@ def logout():
   flash('You were logged out')
   return redirect(url_for('index'))
 
-#--------------- helper methods ---------------#
-def connect_db():
-  return sqlite3.connect(app.config['DATABASE'])
-
-def init_db():
-  with closing(connect_db()) as db:
-    with app.open_resource('schema.sql', mode='r') as f:
-      db.cursor().executescript(f.read())
-      db.commit()
-
-# returns list of results or first result if one=True
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
-
-@app.before_request
-def before_request():
-    g.db = connect_db()
-
-@app.teardown_request
-def teardown_request(exception):
-  db = getattr(g, 'db', None)
-  if db is not None:
-      db.close()
-
-
 #--------------- launch ---------------#
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
-  init_db()
   app.run(host='0.0.0.0', port=port)

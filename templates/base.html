@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<title>Workout Log</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/base_style.css') }}">
-<div>
+<html>
+  <head>
+  {% block head %}
+    <title>{% block title %}Workout Log{% endblock %}</title>
+    <link rel="stylesheet" type='text/css' href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/base_style.css') }}">
+  {% endblock %}
+  </head>
+  <body>
+    <div class='main_nav'>
+    {% if not session.logged_in %}
+      <a href="{{ url_for('login') }}">log in</a>
+    {% else %}
+      <a href="{{ url_for('logout') }}">log out</a>
+    {% endif %}
+    </div>
 
-  <div class='main_nav'>
-  {% if not session.logged_in %}
-    <a href="{{ url_for('login') }}">log in</a>
-  {% else %}
-    <a href="{{ url_for('logout') }}">log out</a>
-  {% endif %}
-  </div>
+    {% for message in get_flashed_messages() %}
+      <div class='flash'>{{ message }}</div>
+    {% endfor %}
 
-  {% for message in get_flashed_messages() %}
-    <div class='flash'>{{ message }}</div>
-  {% endfor %}
 
-  {% block body %}{% endblock %}
-</div>
+    {% block body %}{% endblock %}
+  </body>
+</html>

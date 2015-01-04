@@ -1,0 +1,24 @@
+.datetime_today {
+  border: 1px solid black;
+  text-align: center;
+}
+
+.date_today {
+  font-size: 20px;
+}
+
+.curr_time {
+  font-size: 32px;
+}
+
+
+@media (min-width: 768px) {
+
+  .date_today {
+    font-size: 30px;
+  }
+
+  .curr_time {
+    font-size: 50px;
+  }
+}

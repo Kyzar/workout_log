@@ -1,8 +1,14 @@
+* {
+  /*border: 1px solid black;*/
+}
+
+body {
+  font-size: 16px; /* default font size */
+}
+
 .main_nav {
   text-align: right;
-  font-size: 0.8em;
-  padding: 0.3em;
-  margin-bottom: 1em;
+  padding: 5px;
   background: #fafafa;
 }
 

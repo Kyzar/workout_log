@@ -5,6 +5,7 @@ from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 
+
 #--------------- initialization ---------------#
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
@@ -12,8 +13,6 @@ app.config.from_pyfile('development_config.py')
 
 
 #--------------- controllers ---------------#
-
-"""Main page: Today's work out log."""
 @app.route('/')
 def index():
   date = time.strftime('%a %b, %d')

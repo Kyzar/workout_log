@@ -10,15 +10,16 @@
   }])
 
   .controller('WorkoutLogController', ['$scope', function($scope, $log) {
-    $scope.totalExercises = 1;
 
     $scope.strExercises = [ {sets: 0, reps: 0, weight: 0, name: ''} ];
 
     $scope.addExercise = function() {
       $scope.strExercises.push({sets: 0, reps: 0, weight: 0, name: ''});
-      $scope.totalExercises ++;
     };
 
+    $scope.removeExercise = function(exercise) {
+      $scope.strExercises.splice($scope.strExercises.indexOf(exercise),1);
+    };
 
   }])
 

@@ -16,7 +16,7 @@
 
   <!-- entry for today -->
   <article class='entry_container'>
-    <div>You have done {[ totalExercises ]} exercises today.</div>
+    <div>You have done {[ strExercises.length ]} exercises today.</div>
 
     <form action="{{ url_for('add_entry') }}" method='post' class='add_entry'>
       <!-- strength exercises -->
@@ -26,6 +26,7 @@
           Reps<input type='number' name='reps' min='0' ng-model='ex.reps'>
           Weight<input type='number' name='weight' min='0' ng-model='ex.weight'>
           Exercise<input type='text' name='exercise' ng-model='ex.name'>
+          <input type='button' name='delete_exercise' ng-click='removeExercise(ex)'>
         </li>
       </ul>
       <input type='button' ng-click='addExercise()'>

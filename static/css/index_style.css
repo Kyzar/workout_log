@@ -11,6 +11,27 @@
   font-size: 32px;
 }
 
+.exercise_count {
+  font-size: 20px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.str_exercises {
+  margin: 0 auto;
+}
+
+.add_exercise {
+  display: block;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+/* Boostrap modal bug where backdrop's z-index > dialog's z-index */
+.modal-dialog {
+  z-index: 1050;
+}
+
 
 @media (min-width: 768px) {
 

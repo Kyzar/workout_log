@@ -9,14 +9,16 @@
 <!-- angular controller -->
 <div ng-controller='WorkoutLogController'>
   <!-- date time for today -->
-  <article class='datetime_today row'>
+  <div class='datetime_today row'>
     <div class='date_today col-xs-12'>{{ date }}</div>
     <div class='curr_time col-xs-12'>{{ curr_time }}</div>
-  </article>
+  </div>
 
   <!-- entry for today -->
   <article class='entry_container'>
-    <div class='exercise_count'>You have done {[ strExercises.length ]} exercises today.</div>
+    <div class='exercise_count'>
+      You have done {[ strExercises.length ]} exercises today.
+    </div>
 
     <form action="{{ url_for('add_entry') }}" method='post' class='add_entry'>
       <!-- strength exercises -->
@@ -37,9 +39,8 @@
         </table>
       </div>
 
-      <a href='#' class="btn btn-success" data-toggle="modal" data-target="#str_exercises_modal">
-        Click to open Modal</a>
-      <!-- <input type='button' value='Add Exercise' class='btn add_exercise' ng-click='addExercise()'> -->
+      <!-- add exercise to workout button -->
+      <a href='#' class="btn btn-success add_exercise_btn" data-toggle="modal" data-target="#str_exercises_modal">Add Exercise</a>
 
       <!-- saving entry -->
       {% if session.logged_in %}
@@ -47,24 +48,42 @@
       {% endif %}
     </form>
   </article>
-</div>
 
-<!-- Popup for adding a strength exercise -->
-<div class="modal fade" id="str_exercises_modal" tabindex="-1" role="dialog" aria-labelledby="str_exercises_modal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&amp;times;</button>
-      <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-      </div>
-      <div class="modal-body">
-        <h3>Modal Body</h3>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+  <!-- Popup modal for adding a strength exercise -->
+  <div class="modal fade" id="str_exercises_modal" tabindex="-1" role="dialog" aria-labelledby="str_exercises_modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+          <h4 class="modal-title">Add Exercise to Workout</h4>
+        </div>
+        <div class="modal-body">
+          <!-- new exercise form -->
+          <form ng-submit='addExercise()'>
+            <div class='form-group'>
+              <label for='newExerciseSets'>Sets</label>
+              <input type='number' class='form-control' min='0' ng-model='newExerciseSets'>
+            </div>
+            <div class='form-group'>
+              <label for='newExerciseReps'>Reps</label>
+              <input type='number' class='form-control' min='0' ng-model='newExerciseReps'>
+            </div>
+            <div class='form-group'>
+              <label for='newExerciseWeight'>Weight</label>
+              <input type='number' class='form-control' min='0' ng-model='newExerciseWeight'>
+            </div>
+            <div class='form-group'>
+              <label for='newExerciseName'>Name</label>
+              <input type='number' class='form-control' min='0' ng-model='newExerciseName'>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+          <button type="button" class="btn btn-primary" data-dismiss='modal' ng-click='addExercise()'>Add</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+</div> <!-- ng-controller -->
 {% endblock %}

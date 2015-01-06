@@ -1,3 +1,4 @@
+/*-------------- Current time --------------*/
 .datetime_today {
   border: 1px solid black;
   text-align: center;
@@ -11,28 +12,6 @@
   font-size: 32px;
 }
 
-.exercise_count {
-  font-size: 20px;
-  margin: 20px auto;
-  text-align: center;
-}
-
-.str_exercises {
-  margin: 0 auto;
-}
-
-.add_exercise {
-  display: block;
-  margin: 0 auto;
-  margin-top: 50px;
-}
-
-/* Boostrap modal bug where backdrop's z-index > dialog's z-index */
-.modal-dialog {
-  z-index: 1050;
-}
-
-
 @media (min-width: 768px) {
 
   .date_today {
@@ -43,3 +22,54 @@
     font-size: 50px;
   }
 }
+/*-------------- end current time --------------*/
+
+/*-------------- main body --------------*/
+.exercise_count {
+  font-size: 20px;
+  margin: 20px auto;
+  text-align: center;
+}
+/*-------------- exercise table --------------*/
+.str_exercises {
+  margin: 0 auto;
+}
+
+.add_exercise {
+  display: block;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+/*-------------- end exercise table --------------*/
+
+/*-------------- add exercise modal --------------*/
+/* Boostrap modal bug where backdrop's z-index > dialog's z-index */
+.modal-dialog {
+  z-index: 1050;
+}
+
+#str_exercises_modal {
+  text-align: center;
+}
+
+.add_exercise_input {
+  display: block;
+  margin: 0
+  width: 75%;
+}
+
+@media (min-width: 768px) {
+  .add_exercise_input {
+    display: inline-block;
+    margin: 0;
+    width: 20%;
+  }
+}
+
+/*-------------- end add exercise modal --------------*/
+/*-------------- end main body --------------*/
+
+
+
+
+

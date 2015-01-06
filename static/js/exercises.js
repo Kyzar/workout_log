@@ -9,7 +9,7 @@
     $interpolateProvider.endSymbol(']}');
   }])
 
-  .controller('WorkoutLogController', ['$scope', function($scope, $log) {
+  .controller('WorkoutLogController', ['$scope', function($scope) {
 
     $scope.strExercises = [];
 

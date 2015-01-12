@@ -3,7 +3,7 @@ import time
 import sqlite3
 from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
-     abort, render_template, flash
+     abort, render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
@@ -12,9 +12,11 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('development_config.py')
 db = SQLAlchemy(app)
+# import here to prevent circular ImportError
 from models import *
 
-#--------------- controllers ---------------#
+
+#--------------- routes ---------------#
 @app.route('/')
 def index():
   date = time.strftime('%a %b, %d')
@@ -33,8 +35,10 @@ def add_entry():
   flash('Testing')
   return redirect(url_for('index'))
 
-# if GET -> load login page
-# if POST -> attempt to log user in
+'''
+if GET -> load login page
+if POST -> attempt to log user in
+'''
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   error = None
@@ -61,7 +65,96 @@ def logout():
   flash('You were logged out')
   return redirect(url_for('index'))
 
+
+#--------------- AJAX ---------------#
+'''
+Look up an exercise in entire db.
+Requires: <string> name of exercise
+Returns: JSON of exercise, or Error if not found
+'''
+@app.route('/lookup/exercise')
+def lookup_exercise():
+  # clean query of spaces since they are not stored in db
+  query = request.args.get('exercise').replace(' ', '')
+  if query == 'all':
+    res = Exercise.query.order_by(Exercise.name).all()
+  else:
+    res = Exercise.query.filter_by(name=query).first()
+
+  if res is None:
+    # TODO: change to something... cleaner
+    return 'Exercise not found', 404
+
+  if query == 'all':
+    return jsonify(results=[{
+      'id': ex.id,
+      'name': ex.name,
+      'exerciseType': ex.exercise_type,
+      'equipment': Equipment.query.get(ex.equipment_id).name
+    } for ex in res])
+
+  else:
+    return jsonify(results={
+      'id': res.id,
+      'name': res.name,
+      'exerciseType': res.exercise_type,
+      'equipment': Equipment.query.get(res.equipment_id).name
+    })
+
+@app.route('/lookup/equipment')
+def lookup_equipment():
+  # clean query of spaces since they are not stored in db
+  query = request.args.get('equipment').replace(' ', '')
+  if query == 'all':
+    res = Equipment.query.order_by(Equipment.name).all()
+  else:
+    res = Equipment.query.filter_by(name=query).first()
+
+  if res is None:
+    return 'Exercise not found', 404
+
+  if query == 'all':
+    return jsonify(results=[{ 'name': eq.name } for eq in res])
+  else:
+    return jsonify(results={ 'name': res.name })
+
+@app.route('/create', methods=['POST'])
+def create():
+  # app.logger.debug(type(request.get_json(request.data)))
+  data = request.get_json(request.data)
+  # TODO: validate all input present
+  ex = Exercise(data['exName'], data['exType'])
+  db.session.add(ex)
+  db.session.commit()
+  return '<p>Exercise successfully created</p>', 204
+
+
 #--------------- launch ---------------#
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
   app.run(host='0.0.0.0', port=port)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -15,7 +15,7 @@
   </div>
 
   <!-- entry for today -->
-  <article class='entry_container'>
+  <section class='entry_container'>
     <div class='exercise_count'>
       You have done {[ strExercises.length ]} exercises today.
     </div>
@@ -30,10 +30,10 @@
           <th>Exercise</th>
           <th>Remove</th>
           <tr ng-repeat='ex in strExercises'>
-            <td><input type='number' name='sets' min='0' ng-model='ex.sets'></td>
-            <td><input type='number' name='reps' min='0' ng-model='ex.reps'></td>
-            <td><input type='number' name='weight' min='0' ng-model='ex.weight'></td>
-            <td><input type='text' name='exercise' ng-model='ex.name'></td>
+            <td>{[ex.sets]}</td>
+            <td>{[ex.reps]}</td>
+            <td>{[ex.weight]}</td>
+            <td>{[ex.exName]}</td>
             <td><a href='#' class='btn btn-primary' ng-click='removeExercise(ex)'>X</a></td>
           </tr>
         </table>
@@ -47,9 +47,40 @@
         <input type='submit' value='Save Entry'>
       {% endif %}
     </form>
-  </article>
+  </section>
 
-  <!-- Popup modal for adding a strength exercise -->
+  <!-- add new exercise to database -->
+  <section class='create_exercise'>
+    <a href='#' class='btn btn-success create_exercise_btn' data-toggle='modal' data-target='#create_exercise_modal'>Create New Exercise</a>
+  </section>
+
+  <!-- Popup modal for adding a new exercise to database -->
+  <div class='modal fade' id='create_exercise_modal' tabindex='-1' role='dialog' aria-labelledby='create_exercise_modal' aria-hidden='true'>
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>x</button>
+          <h4 class='modal-title'>Create New Exercise</h4>
+        </div>
+        <div class='modal-body'>
+          <input type='text' ng-model='newExercise.exName'>
+          <select ng-model='newExercise.exType'>
+            <option value='1' selected='selected'>Strength</option>
+            <option value='2'>Cardio</option>
+          </select>
+          <select ng-model='newExercise.equipment'
+            ng-options='op for op in allEquipment'>
+          </select>
+        </div>
+        <div class='modal-footer'>
+          <button type='button' class='btn btn-primary btn-lg' \
+                  data-dismiss='modal' ng-click='createExercise()'>Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup modal for adding a strength exercise to entry -->
   <div class='modal fade' id='str_exercises_modal' tabindex='-1' role='dialog' aria-labelledby='str_exercises_modal' aria-hidden='true'>
     <div class='modal-dialog modal-lg'>
       <div class='modal-content'>
@@ -58,26 +89,26 @@
           <h4 class='modal-title'>Add Exercise to Workout</h4>
         </div>
         <div class='modal-body'>
-          <!-- new exercise form -->
+          <!-- add exercise form -->
           <form ng-submit='addExercise()'>
             <div class='form-group add_exercise_input'>
-              <label for='newExerciseSets'>Sets</label>
-              <input type='number' class='form-control' min='0' ng-model='newExerciseSets'>
+              <label for='addExerciseSets'>Sets</label>
+              <input type='number' class='form-control' min='0' ng-model='addExercise.sets'>
             </div>
             <div class='form-group add_exercise_input'>
-              <label for='newExerciseReps'>Reps</label>
-              <input type='number' class='form-control' min='0' ng-model='newExerciseReps'>
+              <label for='addExerciseReps'>Reps</label>
+              <input type='number' class='form-control' min='0' ng-model='addExercise.reps'>
             </div>
             <div class='form-group add_exercise_input'>
-              <label for='newExerciseWeight'>Weight</label>
+              <label for='addExerciseWeight'>Weight</label>
               <div class='input-group'>
-                <input type='number' class='form-control' min='0' ng-model='newExerciseWeight'>
+                <input type='number' class='form-control' min='0' ng-model='addExercise.weight'>
                 <span class="input-group-addon">lbs.</span>
               </div>
             </div>
             <div class='form-group add_exercise_input'>
-              <label for='newExerciseName'>Name</label>
-              <input type='number' class='form-control' min='0' ng-model='newExerciseName' required>
+              <label for='addExerciseName'>Name</label>
+              <input type='text' class='form-control' min='0' ng-model='addExercise.exName' required>
             </div>
           </form>
         </div>

@@ -74,8 +74,7 @@ Returns: JSON of exercise, or Error if not found
 '''
 @app.route('/lookup/exercise')
 def lookup_exercise():
-  # clean query of spaces since they are not stored in db
-  query = request.args.get('exercise').replace(' ', '')
+  query = request.args.get('exercise')
   if query == 'all':
     res = Exercise.query.order_by(Exercise.name).all()
   else:
@@ -103,8 +102,7 @@ def lookup_exercise():
 
 @app.route('/lookup/equipment')
 def lookup_equipment():
-  # clean query of spaces since they are not stored in db
-  query = request.args.get('equipment').replace(' ', '')
+  query = request.args.get('equipment')
   if query == 'all':
     res = Equipment.query.order_by(Equipment.name).all()
   else:
@@ -114,16 +112,16 @@ def lookup_equipment():
     return 'Exercise not found', 404
 
   if query == 'all':
-    return jsonify(results=[{ 'name': eq.name } for eq in res])
+    return jsonify(results=[{ 'id': eq.id, 'name': eq.name } for eq in res])
   else:
-    return jsonify(results={ 'name': res.name })
+    return jsonify(results={ 'id': eq.id, 'name': res.name })
 
 @app.route('/create', methods=['POST'])
 def create():
-  # app.logger.debug(type(request.get_json(request.data)))
   data = request.get_json(request.data)
+  app.logger.debug(data)
   # TODO: validate all input present
-  ex = Exercise(data['exName'], data['exType'])
+  ex = Exercise(data['exName'], data['exType'], data['equipmentId'])
   db.session.add(ex)
   db.session.commit()
   return '<p>Exercise successfully created</p>', 204

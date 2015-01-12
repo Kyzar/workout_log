@@ -34,16 +34,10 @@ class Exercise(db.Model):
   exercise_type = db.Column(db.Boolean(), nullable=False)
   equipment_id = db.Column(db.Integer, db.ForeignKey('equipment.id'), nullable=False)
 
-  def __init__(self, name, exercise_type, equipment='none'):
+  def __init__(self, name, exercise_type, equipment_id=1):
     self.name = name
     self.exercise_type = exercise_type
-
-    # set equipment to none if not found, else set it to first result
-    eq = Equipment.query.filter_by(name=equipment).first()
-    if eq:
-      self.equipment_id = eq.id
-    else:
-      self.equipment_id = Equipment.query.filter_by(name='none').first().id
+    self.equipment_id = equipment_id
 
   def __repr__(self):
     string_of_type = 'Strength' if self.exercise_type else 'Cardio'

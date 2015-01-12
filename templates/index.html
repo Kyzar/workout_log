@@ -40,7 +40,9 @@
       </div>
 
       <!-- add exercise to workout button -->
-      <a href='#' class="btn btn-success add_exercise_btn" data-toggle="modal" data-target="#str_exercises_modal">Add Exercise</a>
+      <a href='#' class="btn btn-success add_exercise_btn" data-toggle="modal"
+      data-target="#str_exercises_modal" ng-click='initializeAddExercise()'>
+      Add Exercise</a>
 
       <!-- saving entry -->
       {% if session.logged_in %}
@@ -49,13 +51,15 @@
     </form>
   </section>
 
-  <!-- add new exercise to database -->
+  <!-- create new exercise in database -->
   <section class='create_exercise'>
-    <a href='#' class='btn btn-success create_exercise_btn' data-toggle='modal' data-target='#create_exercise_modal'>Create New Exercise</a>
+    <a href='#' class='btn btn-success' data-toggle='modal' data-target='#create_exercise_modal'
+    ng-click='initializeCreateExercise()'>Create New Exercise</a>
   </section>
 
-  <!-- Popup modal for adding a new exercise to database -->
-  <div class='modal fade' id='create_exercise_modal' tabindex='-1' role='dialog' aria-labelledby='create_exercise_modal' aria-hidden='true'>
+  <!-- Popup modal for creating new exercise -->
+  <div class='modal fade' id='create_exercise_modal' tabindex='-1'
+  role='dialog' aria-labelledby='create_exercise_modal' aria-hidden='true'>
     <div class='modal-dialog'>
       <div class='modal-content'>
         <div class='modal-header'>
@@ -69,7 +73,7 @@
             <option value='2'>Cardio</option>
           </select>
           <select ng-model='newExercise.equipment'
-            ng-options='op for op in allEquipment'>
+            ng-options='eq.name for eq in allEquipment track by eq.id'>
           </select>
         </div>
         <div class='modal-footer'>
@@ -81,7 +85,8 @@
   </div>
 
   <!-- Popup modal for adding a strength exercise to entry -->
-  <div class='modal fade' id='str_exercises_modal' tabindex='-1' role='dialog' aria-labelledby='str_exercises_modal' aria-hidden='true'>
+  <div class='modal fade' id='str_exercises_modal' tabindex='-1'
+  role='dialog' aria-labelledby='str_exercises_modal' aria-hidden='true'>
     <div class='modal-dialog modal-lg'>
       <div class='modal-content'>
         <div class='modal-header'>
@@ -108,7 +113,10 @@
             </div>
             <div class='form-group add_exercise_input'>
               <label for='addExerciseName'>Name</label>
-              <input type='text' class='form-control' min='0' ng-model='addExercise.exName' required>
+              <!-- <input type='text' class='form-control' min='0' ng-model='addExercise.exName' required> -->
+              <select ng-model='addExercise.exercise'
+                ng-options='ex.name for ex in allExercises track by ex.id'>
+              </select>
             </div>
           </form>
         </div>

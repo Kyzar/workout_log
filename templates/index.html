@@ -2,6 +2,8 @@
 {% block head %}
   {{ super() }}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index_style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/autocomplete.css') }}">
+  <script src="{{ url_for('static', filename='js/autocomplete.js') }}"></script>
   <script src="{{ url_for('static', filename='js/exercises.js') }}"></script>
 {% endblock %}
 
@@ -113,10 +115,10 @@
             </div>
             <div class='form-group add_exercise_input'>
               <label for='addExerciseName'>Name</label>
-              <!-- <input type='text' class='form-control' min='0' ng-model='addExercise.exName' required> -->
-              <select ng-model='addExercise.exercise'
-                ng-options='ex.name for ex in allExercises track by ex.id'>
-              </select>
+<!--               <input type='text' class='form-control'
+                my-auto-complete ng-model='addExercise.exercise' required> -->
+              <autocomplete ng-model='addExercise.exercise' data='exerciseNames'>
+              </autocomplete>
             </div>
           </form>
         </div>

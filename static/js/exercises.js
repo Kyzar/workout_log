@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  angular.module('WorkoutLogApp', [])
+  angular.module('WorkoutLogApp', ['autocomplete'])
 
   // config angular module to use different binding tags from Jinja tags
   .config(['$interpolateProvider', function($interpolateProvider) {
@@ -107,6 +107,19 @@
   });
 
 
+  // ------------- Directives ------------- //
+
+  // autocomplete directive
+  angular.module('WorkoutLogApp')
+  .directive('myAutoComplete', function() {
+    return function(scope, element, attrs) {
+      element.bind('keydown', function() {
+        console.log('hello');
+      })
+    }
+  });
+
+
   // ------------- Controllers ------------- //
 
   // controller for new entry view
@@ -119,11 +132,20 @@
       ExerciseService.getAllExercises()
         .then(function(data) {
           $scope.allExercises = data;
+          $scope.exerciseNames = (function() {
+            var names = [];
+            angular.forEach($scope.allExercises, function(ex, i) {
+              names.push(ex.name);
+            });
+            return names
+          })();
+
+          // set default values for new row in entry
           $scope.defaultAddExercise = {
             sets: 0,
             reps: 0,
             weight: 0.0,
-            exercise: $scope.allExercises[0]
+            exercise: ''
           }
           $scope.addExercise = angular.copy($scope.defaultAddExercise);
         })

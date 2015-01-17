@@ -8,56 +8,125 @@
 {% endblock %}
 
 {% block body %}
-<!-- angular controller -->
-<div ng-controller='WorkoutLogController'>
-  <!-- date time for today -->
-  <div class='datetime_today row'>
-    <div class='date_today col-xs-12'>{{ date }}</div>
-    <div class='curr_time col-xs-12'>{{ curr_time }}</div>
-  </div>
+<!-- date time for today -->
+<div class='datetime_today row'>
+  <div class='date_today col-xs-12'>{{ date }}</div>
+  <div class='curr_time col-xs-12'>{{ curr_time }}</div>
+</div>
 
-  <!-- entry for today -->
+<!-- Workout entry controller -->
+<div ng-controller='NewEntryController'>
+
+  <!-- currenty entry -->
   <section class='entry_container'>
-    <div class='exercise_count'>
-      You have done {[ strExercises.length ]} exercises today.
-    </div>
-
     <form action="{{ url_for('add_entry') }}" method='post' class='add_entry'>
+
       <!-- strength exercises -->
       <div class='table-responsive'>
         <table class='table str_exercises'>
           <th>Sets</th>
           <th>Reps</th>
-          <th>Weight</th>
+          <th>Weight (lb.)</th>
           <th>Exercise</th>
           <th>Remove</th>
-          <tr ng-repeat='ex in strExercises'>
-            <td>{[ex.sets]}</td>
-            <td>{[ex.reps]}</td>
-            <td>{[ex.weight]}</td>
-            <td>{[ex.exName]}</td>
-            <td><a href='#' class='btn btn-primary' ng-click='removeExercise(ex)'>X</a></td>
+          <th>Duplicate</th>
+          <tr ng-repeat='ex in entry.strExercises'>
+            <td>{[ ex.sets ]}</td>
+            <td>{[ ex.reps ]}</td>
+            <td>{[ ex.weight ]}</td>
+            <td>{[ ex.exercise.name ]}</td>
+            <td><a href='#' class='btn btn-primary' ng-click="removeExerciseFromEntry(row, 'strength')">X</a></td>
+            <!-- <td><a href='#' class='btn btn-primary' ng-click="duplicateExerciseToEntry(row, 'strength')">Duplicate</a></td> -->
           </tr>
         </table>
       </div>
 
-      <!-- add exercise to workout button -->
+      <!-- cardio exercises -->
+      <div class='table-responsive'>
+        <table class='table cardio_exercises'>
+          <th>Time (sec)</th>
+          <th>Distance (km)</th>
+          <th>Exercise</th>
+          <th>Remove</th>
+          <tr ng-repeat='ex in entry.cardioExercises'>
+            <td>{[ ex.time ]}</td>
+            <td>{[ ex.distance ]}</td>
+            <td>{[ ex.exercise.name ]}</td>
+            <td><a href='#' class='btn btn-primary' ng-click="removeExerciseFromEntry(row, 'cardio')">X</a></td>
+            <!-- <td><a href='#' class='btn btn-primary' ng-click="duplicateExerciseToEntry(row, 'cardio')">Duplicate</a></td> -->
+          </tr>
+        </table>
+      </div>
+
+      <!-- add row to entry button -->
       <a href='#' class="btn btn-success add_exercise_btn" data-toggle="modal"
-      data-target="#str_exercises_modal" ng-click='initializeAddExercise()'>
-      Add Exercise</a>
+      data-target="#str_exercises_modal">Add Exercise</a>
 
       <!-- saving entry -->
-      {% if session.logged_in %}
-        <input type='submit' value='Save Entry'>
-      {% endif %}
+      {% if session.logged_in %}<a href='#' class='btn btn-primary' ng-click='saveEntry()'>Save Entry</a>{% endif %}
     </form>
   </section>
 
+  <!-- Popup modal for adding a strength exercise to entry -->
+  <div class='modal fade' id='str_exercises_modal' tabindex='-1'
+  role='dialog' aria-labelledby='str_exercises_modal' aria-hidden='true'>
+    <div class='modal-dialog modal-lg'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>x</button>
+          <h4 class='modal-title'>Add Exercise to Workout</h4>
+        </div>
+        <div class='modal-body'>
+          <!-- add exercise form -->
+          <form>
+            <div class='form-group autocomplete_input'>
+              <label for='exerciseName'>Name</label>
+              <autocomplete ng-model='exerciseName' data='exerciseNames'></autocomplete>
+            </div>
+
+            <div template-switch>
+              <article ng-show="addExerciseForm == 'strength'">
+                <div class='form-group add_exercise_input'>
+                  <label for='sets'>Sets</label>
+                  <input type='number' class='form-control' min='0' ng-model='addExercise.sets'>
+                </div>
+                <div class='form-group add_exercise_input'>
+                  <label for='reps'>Reps</label>
+                  <input type='number' class='form-control' min='0' ng-model='addExercise.reps'>
+                </div>
+                <div class='form-group add_exercise_input'>
+                  <label for='weight'>Weight</label>
+                  <input type='number' class='form-control' min='0' ng-model='addExercise.weight'>
+                </div>
+              </article>
+              <article ng-show="addExerciseForm == 'cardio'">
+                <div class='form-group add_exercise_input'>
+                  <label for='time'>Time</label>
+                  <input type ='number' class='form-control' min='0' ng-model='addExercise.time'>
+                </div>
+                <div class='form-group add_exercise_input'>
+                  <label for='distance'>Distance</label>
+                  <input type ='number' class='form-control' min='0' ng-model='addExercise.distance'>
+                </div>
+              </article>
+            </div>
+
+          </form>
+        </div>
+        <div class='modal-footer'>
+          <button type='button' class='btn btn-primary btn-lg'
+          data-dismiss='modal' ng-click='addExerciseToEntry()'>Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- create new exercise in database -->
-  <section class='create_exercise'>
+<!--   <section class='create_exercise'>
     <a href='#' class='btn btn-success' data-toggle='modal' data-target='#create_exercise_modal'
     ng-click='initializeCreateExercise()'>Create New Exercise</a>
-  </section>
+  </section> -->
 
   <!-- Popup modal for creating new exercise -->
   <div class='modal fade' id='create_exercise_modal' tabindex='-1'
@@ -79,56 +148,12 @@
           </select>
         </div>
         <div class='modal-footer'>
-          <button type='button' class='btn btn-primary btn-lg' \
-                  data-dismiss='modal' ng-click='createExercise()'>Create</button>
+          <button type='button' class='btn btn-primary btn-lg'
+          data-dismiss='modal' ng-click='createExercise()'>Create</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Popup modal for adding a strength exercise to entry -->
-  <div class='modal fade' id='str_exercises_modal' tabindex='-1'
-  role='dialog' aria-labelledby='str_exercises_modal' aria-hidden='true'>
-    <div class='modal-dialog modal-lg'>
-      <div class='modal-content'>
-        <div class='modal-header'>
-          <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>x</button>
-          <h4 class='modal-title'>Add Exercise to Workout</h4>
-        </div>
-        <div class='modal-body'>
-          <!-- add exercise form -->
-          <form ng-submit='addExercise()'>
-            <div class='form-group add_exercise_input'>
-              <label for='addExerciseSets'>Sets</label>
-              <input type='number' class='form-control' min='0' ng-model='addExercise.sets'>
-            </div>
-            <div class='form-group add_exercise_input'>
-              <label for='addExerciseReps'>Reps</label>
-              <input type='number' class='form-control' min='0' ng-model='addExercise.reps'>
-            </div>
-            <div class='form-group add_exercise_input'>
-              <label for='addExerciseWeight'>Weight</label>
-              <div class='input-group'>
-                <input type='number' class='form-control' min='0' ng-model='addExercise.weight'>
-                <span class="input-group-addon">lbs.</span>
-              </div>
-            </div>
-            <div class='form-group add_exercise_input'>
-              <label for='addExerciseName'>Name</label>
-<!--               <input type='text' class='form-control'
-                my-auto-complete ng-model='addExercise.exercise' required> -->
-              <autocomplete ng-model='addExercise.exercise' data='exerciseNames'>
-              </autocomplete>
-            </div>
-          </form>
-        </div>
-        <div class='modal-footer'>
-          <!-- <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button> -->
-          <button type='button' class='btn btn-primary btn-lg' \
-                  data-dismiss='modal' ng-click='addExercise()'>Add</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> <!-- ng-controller -->
+</div> <!-- EntryController -->
 {% endblock %}

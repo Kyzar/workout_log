@@ -11,44 +11,13 @@
 
   // ------------- Services/Factories ------------- //
 
-  // service for getting/creating equipment
+  /**
+  * Service for getting and creating exercises
+  */
   angular.module('WorkoutLogApp')
-  .service('EquipmentService', function($http, $q) {
+  .service('ExerciseService', function($http, $q) {
 
-    // array of all equipment in db, with none as first
-    this.getAllEquipment = function() {
-      var allEquipment;
-      return $http.get('/lookup/equipment?equipment=all')
-        .then(function(response) {
-          allEquipment = response.data.results;
-          // re-order equipment so it is alphabetical but 'none' is first
-          var idOfNone = (function() {
-            for (var i=0; i<allEquipment.length; i++) {
-              if (allEquipment[i].name === 'none') { return i; }
-            }
-            throw 'Could not find none option';
-          })();
-          var none = allEquipment.splice(idOfNone, 1)[0];
-          allEquipment.unshift(none);
-          return allEquipment;
-        });
-    }
-
-    // get a specific equipment, or all equipment with equipment=all
-    this.getEquipment = function(equipment) {
-      return $http.get('/lookup/equipment?equipment=' + equipment)
-        .then(function(response) {
-          return response.data.results;
-
-        }, function(response) {
-            return $q.reject(response.data);
-        });
-    }
-  });
-
-  // service for getting/creating exercises
-  angular.module('WorkoutLogApp')
-  .service('ExerciseService', function($http, $q, EquipmentService) {
+    // get all exercise objects in db
     this.getAllExercises = function() {
       return $http.get('/lookup/exercise?exercise=all')
         .then(function(response) {
@@ -56,8 +25,8 @@
         });
     }
 
-    // get a specific exercise, or all exercises with exercise=all
-    this.getExercise = function(exercise) {
+    // get a specific exercise by name
+    this.getExerciseByName = function(exercise) {
       return $http.get('/lookup/exercise?exercise=' + exercise)
         .then(function(response) {
           return response.data.results;
@@ -67,6 +36,7 @@
         });
     }
 
+    // create exercise object in db
     this.createExercise = function(exercise) {
       // TODO: handle missing info/validate input
       return $http.post('/create', exercise)
@@ -74,130 +44,151 @@
           return data;
         })
         .error(function(data, status) {
-          console.log('failed to create');
-          return {
-            status: status,
-            msg: data
-          };
+          return { status: status, msg: data };
         });
     }
   });
 
-  // service for managing an entry
+
+  /**
+  * Service for managing entries
+  *
+  * Allows retrieving an entry by date, adding and removing
+  * exercises from entry, and saving changes to database.
+  */
   angular.module('WorkoutLogApp')
   .service('EntryService', function($http) {
-    // List of strength exercises in current entry
-    var exercises = [];
 
-    // TODO: load from json format
-    this.loadEntry = function(userId, date) {
-      $http.get('entry')
-        .success(function(data) {
-          exercises = data;
-        })
-        .error(function(data) {
-          alert('No entry for that date');
-        });
+    // empty new entry
+    var createEntry = function() {
+      return {
+        strExercises : [],
+        cardioExercises : []
+      }
     }
 
-    this.removeExercise = function(exercise) {
-     exercises.splice(exercises.indexOf(exercise), 1);
+    var entry = createEntry();
+
+    this.getCurrentEntry = function() {
+      return entry;
+    }
+
+    // TODO: load from json format, how to pass userId safely?
+    this.loadEntry = function(userId, date) {
+      return $http.get('/lookup/entry?date=' + date)
+        .then(function(data) { entry = data; });
+    }
+
+    this.addExercise = function(row, type) {
+      var exercises = type === 'strength' ? entry.strExercises : entry.cardioExercises;
+      exercises.push(row);
+    }
+
+    this.removeExercise = function(row, type) {
+      var exercises = type === 'strength' ? entry.strExercises : entry.cardioExercises;
+      angular.forEach(exercises, function(ex, i) {
+        if (ex.name === row.name) { exercises.splice(i), 1 }
+      });
+    }
+
+    this.saveEntry = function() {
+      console.log('entry saved!');
     }
 
   });
 
 
-  // ------------- Directives ------------- //
-
-  // autocomplete directive
+  /**
+  * REMOVE LATER: Service for testing things
+  */
   angular.module('WorkoutLogApp')
-  .directive('myAutoComplete', function() {
-    return function(scope, element, attrs) {
-      element.bind('keydown', function() {
-        console.log('hello');
-      })
+  .service('TestService', function() {
+    var testVariable = 1;
+    this.testFunc = function() {
+      console.log('test service');
     }
   });
 
 
   // ------------- Controllers ------------- //
 
-  // controller for new entry view
+  /**
+  * Controller for creating new workout entry
+  */
   angular.module('WorkoutLogApp')
-  .controller('WorkoutLogController',
-    function($scope, EquipmentService, ExerciseService, EntryService) {
+  .controller('NewEntryController',
+    ['$scope', 'ExerciseService', 'EntryService', 'TestService',
+    function($scope, ExerciseService, EntryService, TestService) {
 
-    $scope.initializeAddExercise = function() {
-      // get all exercises for autocomplete search
-      ExerciseService.getAllExercises()
-        .then(function(data) {
-          $scope.allExercises = data;
-          $scope.exerciseNames = (function() {
-            var names = [];
-            angular.forEach($scope.allExercises, function(ex, i) {
-              names.push(ex.name);
-            });
-            return names
-          })();
+    $scope.allExercises;
+    $scope.exerciseNames;
+    $scope.entry = EntryService.getCurrentEntry();
+    $scope.addExerciseForm = 'strength'; // default template for add exercise form
+    $scope.defaultStrExercise = {
+      sets: 0,
+      reps: 0,
+      weight: 0.0,
+      exercise: null
+    }
+    $scope.defaultCardioExercise = {
+      time: 0,
+      exercise: null
+    }
+    // track name of current exercise chosen in add exercise form
+    // need to store separately because of autocomplete directive
+    $scope.exerciseName = '';
+    $scope.addExercise; // user input for adding row to entry
 
-          // set default values for new row in entry
-          $scope.defaultAddExercise = {
-            sets: 0,
-            reps: 0,
-            weight: 0.0,
-            exercise: ''
+    // initialize data for autocomplete and adding row to entry
+    ExerciseService.getAllExercises()
+      .then(function(data) {
+        // save all exercises and create array of names for autocomplete
+        $scope.allExercises = data;
+        $scope.exerciseNames = (function() {
+          var names = [];
+          angular.forEach(data, function(ex) { names.push(ex.name); });
+          return names;
+        })();
+
+        // set new row to default strength exercise
+        $scope.addExercise = angular.copy($scope.defaultStrExercise);
+      });
+
+    $scope.addExerciseToEntry = function() {
+      $scope.addExercise.exercise = $scope.findExercise($scope.exerciseName);
+      EntryService.addExercise($scope.addExercise, $scope.addExerciseForm);
+    }
+
+    $scope.removeExerciseFromEntry = function(row, type) {
+      EntryService.removeExercise(row, type);
+    }
+
+    $scope.findExercise = function(name) {
+      for (var i=0; i<$scope.allExercises.length; i++) {
+        if ($scope.allExercises[i].name === name) {
+          return $scope.allExercises[i];
+        }
+      }
+    }
+
+  }]);
+
+
+  // ------------- Directives ------------- //
+  angular.module('WorkoutLogApp')
+  .directive('templateSwitch', function() {
+    return {
+      link: function(scope, element, attrs) {
+        // watch exerciseName to see what type of form to show
+        scope.$watch('exerciseName', function(newVal) {
+          // can't set the form until exercises are loaded
+          if (scope.allExercises) {
+            var ex = scope.findExercise(scope.exerciseName);
+            if (ex) { scope.addExerciseForm = ex.exerciseType; }
           }
-          $scope.addExercise = angular.copy($scope.defaultAddExercise);
-        })
-    }
-
-    $scope.initializeCreateExercise = function() {
-      if (typeof($scope.allEquipment) === 'undefined') {
-        // get all equipment for select options
-        EquipmentService.getAllEquipment()
-          .then(function(data) {
-            $scope.allEquipment = data;
-
-            // set default values for form
-            $scope.defaultExercise = {
-              exName: '',
-              exType: 1,
-              equipment: $scope.allEquipment[0] // default to 'none'
-            }
-            $scope.newExercise = angular.copy($scope.defaultExercise);
-          })
-      }
-    }
-
-    $scope.createExercise = function() {
-      // create request object
-      var request = {
-        exName: $scope.newExercise.exName,
-        exType: $scope.newExercise.exType == 1 ? true : false,
-        equipmentId: $scope.newExercise.equipment.id
-      }
-
-      // check if exercise already in database
-      ExerciseService.getExercise(request.exName)
-        .then(function(data) {
-          alert('exercise already exists!');
-
-        }, function(error) {
-          // if not found, proceed to create exercise
-          ExerciseService.createExercise(request)
-            .then(function(data) {
-              $scope.newExercise = angular.copy($scope.defaultExercise);
-
-            }, function(error) {
-              alert('exercise failed to be created');
-            });
         });
+      }
     }
-
-    $scope.removeExercise = function(exercise) {
-      EntryService.removeExercise(exercise);
-    }
-
   });
 
 }());

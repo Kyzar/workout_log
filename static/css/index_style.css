@@ -35,6 +35,11 @@
   margin: 0 auto;
 }
 
+.cardio_exercises {
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
 .add_exercise {
   display: block;
   margin: 0 auto;
@@ -52,20 +57,24 @@
   text-align: center;
 }
 
+.autocomplete_input {
+  margin: 30px auto;
+  width: 75%;
+}
+
 .add_exercise_input {
   display: block;
-  margin: 0
+  margin: 0;
   width: 75%;
 }
 
 @media (min-width: 768px) {
   .add_exercise_input {
     display: inline-block;
-    margin: 0;
+    margin: 0 30px;
     width: 20%;
   }
 }
-
 /*-------------- end add exercise modal --------------*/
 /*-------------- end main body --------------*/
 

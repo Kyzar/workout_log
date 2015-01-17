@@ -1,26 +1,49 @@
 from app import db
 
 '''
+User model.
+Requires:
+Relationships: one-to-many with Entry.
+'''
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column('user_id', db.Integer, primary_key=True)
+    username = db.Column('username', db.String(20), unique=True, index=True)
+    password = db.Column('password' , db.String(10))
+    email = db.Column('email', db.String(50), unique=True, index=True)
+    registered_on = db.Column('registered_on' , db.DateTime, default=db.func.now())
+
+    def __init__(self , username ,password , email):
+      self.username = username
+      self.password = password
+      self.email = email
+
+
+'''
 Entry model.
 Requires:
-Relationships: one-to-many with StrengthRow and CardioRow
+Relationships: one-to-many with StrengthRow and CardioRow.
 '''
 class Entry(db.Model):
   __tablename__ = 'entries'
 
   id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
   created_on = db.Column(db.DateTime, nullable=False, default=db.func.now())
   updated_on = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
   strength_rows = db.relationship('StrengthRow', backref='entry', lazy='dynamic')
   cardio_rows = db.relationship('CardioRow', backref='entry', lazy='dynamic')
 
+  def __init__(self, user_id):
+    self.user_id = user_id
 
 '''
 Strength row model. A row belongs to one entry.
 Requires: id of entry,
           sets, reps, weight,
           id of exercise
-Relationships: many-to-one with entry
+Relationships: many-to-one with Entry.
 '''
 class StrengthRow(db.Model):
   __tablename__ = 'strengthrows'
@@ -49,7 +72,7 @@ Cardio row model. A row belongs to one entry.
 Requires: time - length of exercise,
           id of exercise,
           id of entry
-Relationships: many-to-one with Entry
+Relationships: many-to-one with Entry.
 '''
 class CardioRow(db.Model):
   __tablename__ = 'cardiorows'
@@ -74,7 +97,7 @@ Exercise model.
 Requires: name of exercise,
           type of exercise - True for strength, False for cardio,
           equipment_id - 1 by default (No equipment)
-Relationships: many-to-one to Equipment
+Relationships: many-to-one with Equipment.
 '''
 class Exercise(db.Model):
   __tablename__ = 'exercises'
@@ -95,7 +118,7 @@ class Exercise(db.Model):
 '''
 Equipment model.
 Requires: name of equipment
-Relationships: one-to-many to Exercise
+Relationships: one-to-many with Exercise.
 '''
 class Equipment(db.Model):
   __tablename__ = 'equipment'

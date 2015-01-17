@@ -13,12 +13,26 @@ class User(db.Model):
     password = db.Column(db.String(10), nullable=False)
     email = db.Column(db.String(50), unique=True, index=True)
     registered_on = db.Column(db.DateTime, default=db.func.now())
+    entries = db.relationship('Entry', backref='user', lazy='dynamic')
 
     def __init__(self , username ,password , email):
       self.username = username
       self.password = password
       self.email = email
 
+    # Such as authenticating email?
+    def is_authenticated(self):
+      return True
+
+    def is_active(self):
+      return True
+
+    # return True if an anonymous user, real users return False
+    def is_anonymous(self):
+      return False
+
+    def get_id(self):
+      return unicode(self.id)
 
 '''
 Entry model.

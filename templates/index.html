@@ -63,7 +63,7 @@
       data-target="#str_exercises_modal">Add Exercise</a>
 
       <!-- saving entry -->
-      {% if session.logged_in %}<a href='#' class='btn btn-primary' ng-click='saveEntry()'>Save Entry</a>{% endif %}
+      {% if current_user.is_authenticated() %}<a href='#' class='btn btn-primary' ng-click='saveEntry()'>Save Entry</a>{% endif %}
     </form>
   </section>
 

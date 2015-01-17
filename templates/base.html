@@ -12,7 +12,7 @@
   </head>
   <body>
     <div class='main_nav'>
-    {% if not session.logged_in %}
+    {% if not current_user.is_authenticated() %}
       <a href="{{ url_for('login') }}">log in</a>
     {% else %}
       <a href="{{ url_for('logout') }}">log out</a>

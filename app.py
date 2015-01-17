@@ -1,90 +1,95 @@
 import os
 import time
-import sqlite3
-from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager
+from flask.ext.login import LoginManager, login_user, logout_user, \
+     current_user, login_required
 
 
 #--------------- initialization ---------------#
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('development_config.py')
+
+# SQLAlchemy database
+db = SQLAlchemy(app)
+from models import * # import here to prevent circular ImportError
+
+# Flask-Login initialization
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-db = SQLAlchemy(app)
-# import here to prevent circular ImportError
-from models import *
 
 @login_manager.user_loader
 def load_user(userid):
     return User.query.get(int(userid))
 
+
 #--------------- routes ---------------#
-'''
-Homepage.
-TODO: Redirects to login/signup if not logged in.
-'''
-@app.route('/')
-def index():
-  if 'logged_in' in session:
-    flash('You are already logged in')
-
-  if not session.get('logged_in'):
-    redirect(url_for('login'))
-
-  date = time.strftime('%a %b, %d')
-  curr_time = time.strftime('%I:%M %p')
-  return render_template('index.html',
-                          date=date,
-                          curr_time=curr_time)
-
-'''
-Add new entry to database and redirect to index.
-'''
-@app.route('/add', methods=['POST'])
-def add_entry():
-  if not session.get('logged_in'):
-    abort(401)
-  flash('Testing')
-  return redirect(url_for('index'))
-
 '''
 if GET -> load login page
 if POST -> attempt to log user in
 '''
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-  error = None
-  if request.method == 'POST':
-    # TODO: lookup account in database
-    if request.form['username'] != app.config['USERNAME']:
-      error = 'Invalid username'
-    elif request.form['password'] != app.config['PASSWORD']:
-      error = 'Invalid password'
-    else:
-      session['logged_in'] = True
-      flash('You were logged in')
-      return redirect(url_for('index'))
-
   # check user already logged in
-  if 'logged_in' in session:
+  if not current_user.is_anonymous():
     flash('You are already logged in')
     return redirect(url_for('index'))
 
-  return render_template('login.html', error=error)
+  if request.method == 'GET':
+    return render_template('login.html')
+
+  # POST request: log user in
+  username = request.form['username']
+  password = request.form['password']
+  user = User.query.filter_by(username=username, password=password).first()
+
+  if user is None:
+    flash('Username or Password is invalid' , 'error')
+    return redirect(url_for('login'))
+
+  login_user(user, remember=True)
+  flash("Logged in successfully.")
+  return redirect(request.args.get('next') or url_for('index'))
 
 '''
 Log user out of account and redirect to index.
 '''
 @app.route('/logout')
+@login_required
 def logout():
-  session.pop('logged_in', None)
+  logout_user()
   flash('You were logged out')
+  return redirect(url_for('login'))
+
+'''
+Homepage.
+TODO: Redirects to login/signup if not logged in.
+'''
+@app.route('/')
+@login_required
+def index():
+  date = time.strftime('%a %b, %d')
+  curr_time = time.strftime('%I:%M %p')
+  return render_template('index.html', date=date, curr_time=curr_time)
+
+'''
+Add new entry to database and redirect to index.
+'''
+@app.route('/add', methods=['POST'])
+@login_required
+def add_entry():
+  entry = Entry()
+  entry.user = current_user
+  # TODO :grab rows from request - start transaction, fail if any rows not added
+  db.session.add(entry)
+  db.commit()
+  flash('Entry successfully saved');
   return redirect(url_for('index'))
+
+
 
 
 #--------------- AJAX ---------------#

@@ -154,15 +154,26 @@
         $scope.addExercise = angular.copy($scope.defaultStrExercise);
       });
 
+    // effects: adds the current addExercise object to the current entry
     $scope.addExerciseToEntry = function() {
-      $scope.addExercise.exercise = $scope.findExercise($scope.exerciseName);
-      EntryService.addExercise($scope.addExercise, $scope.addExerciseForm);
+      // finds exercise object with user input
+      var ex = $scope.findExercise($scope.exerciseName);
+      if (!ex) {
+        $scope.addExercise.exercise = ex;
+        EntryService.addExercise($scope.addExercise, $scope.addExerciseForm);
+      } else {
+        alert('Could not find exercise!');
+      }
     }
 
+    // requires: row object of current entry, type of exercise for row
+    // effects: removes the row object from current entry
     $scope.removeExerciseFromEntry = function(row, type) {
       EntryService.removeExercise(row, type);
     }
 
+    // requires: name of exercise
+    // returns: exercise object from allExercises array
     $scope.findExercise = function(name) {
       for (var i=0; i<$scope.allExercises.length; i++) {
         if ($scope.allExercises[i].name === name) {

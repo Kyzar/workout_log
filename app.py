@@ -5,6 +5,7 @@ from contextlib import closing
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager
 
 
 #--------------- initialization ---------------#
@@ -13,13 +14,14 @@ app.config.from_object('config')
 app.config.from_pyfile('development_config.py')
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 # import here to prevent circular ImportError
 from models import *
 
 @login_manager.user_loader
 def load_user(userid):
-    return User.get(userid)
+    return User.query.get(int(userid))
 
 #--------------- routes ---------------#
 '''

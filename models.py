@@ -8,11 +8,11 @@ Relationships: one-to-many with Entry.
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column('user_id', db.Integer, primary_key=True)
-    username = db.Column('username', db.String(20), unique=True, index=True)
-    password = db.Column('password' , db.String(10))
-    email = db.Column('email', db.String(50), unique=True, index=True)
-    registered_on = db.Column('registered_on' , db.DateTime, default=db.func.now())
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, index=True, nullable=False)
+    password = db.Column(db.String(10), nullable=False)
+    email = db.Column(db.String(50), unique=True, index=True)
+    registered_on = db.Column(db.DateTime, default=db.func.now())
 
     def __init__(self , username ,password , email):
       self.username = username
